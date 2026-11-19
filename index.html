@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#a80912">
+  <title>Cache Lab | CSS45102 | University of Gibraltar</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="university-brand"><img src="logo.png" alt="University of Gibraltar" class="university-logo"><div class="course-brand"><span>UNIVERSITY OF GIBRALTAR</span><strong>CSS45102</strong></div></div>
+    <div class="brand"><span>cache<span class="brand-accent">lab</span></span></div>
+    <span class="topbar-topic"><span class="status-dot"></span> DIRECT MAPPING</span>
+  </header>
+
+  <main class="page">
+    <div class="intro">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-line"></span> CSS45102 · COMPUTER ARCHITECTURE, MADE VISUAL</div>
+        <h1>Meet your <span>cache.</span></h1>
+        <p>See how memory addresses find their place in a direct-mapped cache, one access at a time.</p>
+      </div>
+      <div class="intro-note"><span class="note-icon">↳</span><span>Every memory block has<br><strong>exactly one place</strong> in cache.</span></div>
+    </div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <section class="panel setup-panel" aria-labelledby="setup-title">
+          <div class="section-heading"><span class="step-number">01</span><div><h2 id="setup-title">Cache setup</h2><p>Fixed cache configuration</p></div></div>
+          <div class="config-summary"><span>CACHE LINES</span><strong>256 lines</strong></div>
+          <div class="config-summary"><span>BYTES PER BLOCK</span><strong>4 bytes</strong></div>
+          <div class="config-summary"><span>CACHE CAPACITY</span><strong>1,024 bytes</strong></div>
+          <div class="config-summary"><span>MEMORY ADDRESS SPACE</span><strong>65,536 bytes</strong></div>
+        </section>
+
+        <section class="panel access-panel" aria-labelledby="access-title">
+          <div class="section-heading"><span class="step-number">02</span><div><h2 id="access-title">Access memory</h2><p>Send an address to the cache</p></div></div>
+          <form id="access-form" novalidate>
+            <label for="address">MEMORY ADDRESS <span class="label-hint">0–65535</span></label>
+            <div class="address-input"><input id="address" type="text" inputmode="text" value="0x0000" autocomplete="off" spellcheck="false" aria-describedby="address-help address-error"><span>BIN / HEX</span></div>
+            <p id="address-help" class="input-hint">Use hex (0x0000–0xFFFF), binary (0b or exactly 16 bits), or decimal. Example: 0b0000000000000011.</p>
+            <div class="address-preview" aria-label="Address in multiple bases"><div><span>BINARY</span><strong id="preview-binary">0000000000000000</strong></div><div><span>DECIMAL</span><strong id="preview-decimal">0</strong></div><div><span>HEX</span><strong id="preview-hex">0x0000</strong></div></div>
+            <p id="address-error" class="error" role="alert"></p>
+            <button type="submit" class="primary-button" id="start-access">Start lookup <span aria-hidden="true">→</span></button>
+          </form>
+          <div class="quick-label"><span>TRY AN EXAMPLE</span><span></span></div>
+          <div class="examples"><button type="button" class="example" data-address="0x0000">0x0000 (hit)</button><button type="button" class="example" data-address="0x0400">0x0400 (miss)</button><button type="button" class="example" data-address="0xFFFF">0xFFFF</button><button type="button" class="example random-button" id="random-address">Random ↗</button></div>
+          <p class="helper">Hit/miss examples assume the initial populated cache. Reset to restore it.</p>
+        </section>
+
+        <div class="sidebar-foot"><span>✳</span> A LITTLE ACCESS GOES A LONG WAY</div>
+      </aside>
+
+      <div class="main-content">
+        <section class="panel cycle-panel" aria-labelledby="cycle-title">
+          <div class="panel-header"><div><div class="overline"><span class="tiny-dot"></span> STEP THROUGH A READ</div><h2 id="cycle-title">CPU → cache → memory</h2></div></div>
+          <p class="program-intro">Start a lookup, then advance one step at a time. This models the memory-read part of a CPU fetch-decode-execute cycle, not a complete instruction cycle. Inspired by <a href="https://faculty.etsu.edu/TARNOFF/ntes2150/mem_hier/cache.html" target="_blank" rel="noopener noreferrer">Tarnoff's cache notes</a>.</p>
+          <ol class="cycle-steps" aria-label="Memory read stages"><li id="stage-fetch">1. Request</li><li id="stage-decode">2. Decode address</li><li id="stage-lookup">3. Check cache</li><li id="stage-memory">4. Fill on miss</li><li id="stage-deliver">5. Deliver byte</li></ol>
+          <p class="cycle-message" id="cycle-message" role="status">Enter an address to begin. The initial table contains a valid block in every line.</p>
+          <button type="button" id="next-stage" class="program-step cycle-next" disabled>Next step →</button>
+        </section>
+
+        <section class="panel program-panel" aria-labelledby="program-title">
+          <div class="panel-header">
+            <div><div class="overline"><span class="tiny-dot purple-dot"></span> LEARN BY RUNNING</div><h2 id="program-title">Try a program</h2></div>
+            <span class="address-badge">6502-STYLE CPU</span>
+          </div>
+          <p class="program-intro">Run a small assembly program. Each step is one CPU read: an opcode, an operand byte, or a data byte. All reads use the same cache.</p>
+          <label for="program-select">EXAMPLE PROGRAM</label>
+          <select id="program-select">
+            <option value="loop">Repeated array scan · warm up the cache</option>
+            <option value="arithmetic">Add two memory values</option>
+            <option value="sequential">Adjacent data · spatial locality</option>
+            <option value="conflict">Code and data · cache conflict</option>
+          </select>
+          <p class="program-description" id="program-description"></p>
+          <div class="code-window">
+            <div class="code-heading"><span>ADDRESS &nbsp; MACHINE BYTES &nbsp; ASSEMBLY</span><span>6502</span></div>
+            <pre><code id="program-code"></code></pre>
+          </div>
+          <div class="cpu-state" aria-label="CPU registers"><div><span>PROGRAM COUNTER (PC)</span><strong id="cpu-pc"></strong></div><div><span>ACCUMULATOR (A)</span><strong id="cpu-a"></strong></div><div><span>INDEX X / Y</span><strong id="cpu-xy"></strong></div><div><span>FLAGS C / Z / N / V</span><strong id="cpu-flags"></strong></div></div>
+          <p class="cpu-event" id="cpu-event" role="status"></p>
+          <div class="read-insight" id="read-insight" aria-live="polite">Start with an empty cache and step a CPU read to see which four bytes are loaded.</div>
+          <div class="program-controls"><button type="button" class="program-step" id="program-step">Next CPU read <span aria-hidden="true">→</span></button><button type="button" class="program-run" id="program-pass">Run next pass</button><button type="button" class="program-run" id="program-run">Run remaining</button><button type="button" class="program-run" id="program-clear">Clear cache &amp; restart</button><span id="program-progress"></span></div>
+          <div id="pass-results" class="pass-results" hidden><h3>Loop passes</h3><p>Each pass includes its instruction fetches and 16 data reads; setup before the first pass is excluded.</p><div class="pass-table-wrap"><table><thead><tr><th>PASS</th><th>READS</th><th>HITS</th><th>MISSES</th><th>WITH CACHE</th><th>MEMORY ONLY</th></tr></thead><tbody id="pass-body"></tbody></table></div><p id="pass-empty">No passes completed yet. Choose Clear cache &amp; restart, then Run next pass.</p></div>
+          <p class="program-note">A 6502 has an 8-bit CPU and a 16-bit address bus. This teaching model adds a unified cache; a real 6502 has no built-in cache. It uses real instruction bytes but does not model actual processor timing, dummy bus cycles, writes, or the full processor. Programs stop at the end of the listing, not with a 6502 halt instruction.</p>
+          <p class="program-reset-note">Selecting an example restores the populated cache; either reset reloads its code and data, resets the CPU, and clears history. Other memory bytes equal their address modulo 256.</p>
+        </section>
+
+        <section class="panel cache-panel" aria-labelledby="cache-title">
+          <div class="panel-header">
+            <div><div class="overline"><span class="tiny-dot"></span> LIVE VISUALIZATION</div><h2 id="cache-title">The cache <span id="cache-count">/ 256 lines</span></h2></div>
+            <div class="cache-actions"><button type="button" class="reset-button" id="empty-cache">Clear cache &amp; restart</button><button type="button" class="reset-button" id="reset-cache"><span aria-hidden="true">↻</span> Restore populated</button></div>
+          </div>
+          <div class="stats" aria-label="Cache statistics">
+            <div class="stat"><span>ACCESSES</span><strong id="access-count">0</strong><small>total requests</small></div>
+            <div class="stat"><span><i class="legend-dot hit-dot"></i> HITS</span><strong id="hit-count">0</strong><small>found in cache</small></div>
+            <div class="stat"><span><i class="legend-dot miss-dot"></i> MISSES</span><strong id="miss-count">0</strong><small>fetched from memory</small></div>
+            <div class="stat"><span>HIT RATE</span><strong id="hit-rate">—</strong><small>of all accesses</small></div>
+          </div>
+          <div class="timing-panel"><h3>Illustrative read time</h3><p>Assume a cache hit takes <strong>1 time unit</strong> and a miss (lookup + block fill) takes <strong>10 time units</strong>. Without a cache, each byte read takes 10 units. These are teaching estimates, not real 6502 timings or wall-clock measurements.</p><div class="timing-results"><div><span>WITH CACHE</span><strong id="cache-time">0</strong><small>time units</small></div><div><span>MEMORY ONLY</span><strong id="memory-time">0</strong><small>time units</small></div><div><span>READ SPEEDUP</span><strong id="speedup">—</strong><small>for the same reads</small></div></div><p>Includes all recorded manual and CPU byte reads; excludes instruction execution time and unmodeled bus cycles. Miss time is the total, not a penalty added to the hit time.</p></div>
+          <div class="fill-panel"><div class="fill-heading"><h3>Recent block fills</h3><span id="fill-count">0 fills</span></div><p>On a miss, the entire four-byte block is copied from main memory. Most recent fills are shown first, even after later hits or replacements.</p><p id="fill-empty">No blocks loaded since reset. Try a CPU read or an address lookup.</p><ol id="fill-list" aria-label="Most recent cache block fills first"></ol></div>
+          <div class="table-controls"><label for="loaded-only"><input type="checkbox" id="loaded-only" checked> Show loaded lines only</label><span id="loaded-count"></span></div>
+          <p class="table-empty" id="table-empty" hidden>No loaded lines yet. Step a CPU read or uncheck the filter to see all 256 lines.</p>
+          <div class="cache-table-wrap" tabindex="0" role="region" aria-label="Cache lines, scrollable">
+            <table class="cache-table"><thead><tr><th>LINE (DEC / BIN)</th><th>VALID</th><th>TAG (6 BITS)</th><th>MEMORY BLOCK</th><th>ADDRESS RANGE (HEX)</th><th>BYTE 00</th><th>BYTE 01</th><th>BYTE 10</th><th>BYTE 11</th><th>STATUS</th></tr></thead><tbody id="cache-body"></tbody></table>
+          </div>
+          <div class="table-footer"><span><i class="legend-dot empty-dot"></i> Empty line</span><span><i class="legend-dot active-dot"></i> Last accessed</span><span class="table-foot-note">UNCHECK FILTER TO SEE ALL 256 LINES</span></div>
+        </section>
+
+        <section class="panel journey-panel" aria-labelledby="journey-title">
+          <div class="panel-header journey-header"><div><div class="overline"><span class="tiny-dot purple-dot"></span> FOLLOW THE ADDRESS</div><h2 id="journey-title">Anatomy of an access</h2></div><span class="address-badge" id="address-badge">AWAITING INPUT</span></div>
+          <div id="journey-empty" class="journey-empty"><div class="empty-icon">⌁</div><div><strong>Ready when you are.</strong><p>Enter an address to see how it maps to the cache.</p></div><span class="empty-arrow" aria-hidden="true">↖</span></div>
+          <div id="journey-result" hidden>
+            <div class="result-banner" id="result-banner" role="status"></div>
+            <div class="bit-row"><div class="bit-label">16-BIT ADDRESS <span id="address-decimal"></span></div><div class="bits" id="address-bits"></div><div class="bit-legend"><span><i class="legend-dot tag-dot"></i> TAG (6 BITS)</span><span><i class="legend-dot index-dot"></i> LINE INDEX (8 BITS)</span><span><i class="legend-dot offset-dot"></i> OFFSET (2 BITS)</span></div></div>
+            <div class="calculation-grid"><div><span>01 / MEMORY BLOCK</span><strong id="block-calc"></strong><small>address ÷ bytes per block</small></div><div><span>02 / CACHE LINE</span><strong id="line-calc"></strong><small>block number modulo lines</small></div><div><span>03 / TAG</span><strong id="tag-calc"></strong><small>block number ÷ lines</small></div></div>
+            <p class="rounding-note">Division results are rounded down to whole numbers.</p>
+          </div>
+        </section>
+
+        <section class="panel history-panel" aria-labelledby="history-title"><div class="history-heading"><div><div class="overline"><span class="tiny-dot orange-dot"></span> THE STORY SO FAR</div><h2 id="history-title">Access history</h2></div><span id="history-count">0 ACCESSES</span></div><div id="history-empty">Your accesses will show up here. Give it a try!</div><ol id="history-list" aria-label="Most recent accesses first"></ol></section>
+      </div>
+    </div>
+    <footer><span>UNIVERSITY OF GIBRALTAR · CSS45102</span><span>DIRECT-MAPPED CACHE SIMULATOR</span></footer>
+  </main>
+</body>
+</html>
